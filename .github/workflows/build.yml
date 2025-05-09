@@ -1,19 +1,24 @@
 name: Build and Deploy
 
 on:
-  push:
-    branches:
-      - main  # or your default branch
-  workflow_dispatch:  # allows manual trigger
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to deploy'
+        required: true
+        type: string
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed for pushing to the repository
 
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0  # fetch all history for all branches
+          ref: ${{ github.event.inputs.tag }}  # checkout the specified tag
 
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
@@ -46,5 +51,5 @@ jobs:
           git checkout -B built
           git add vendor/ -f
           git add composer.lock -f
-          git commit -m "Build: Update dependencies [skip ci]"
-          git push origin built --force
+          git commit -m "Build: Update dependencies from tag ${{ github.event.inputs.tag }} [skip ci]"
+          git push -f https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git built
