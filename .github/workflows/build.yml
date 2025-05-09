@@ -53,3 +53,25 @@ jobs:
           git add composer.lock -f
           git commit -m "Build: Update dependencies from tag ${{ github.event.inputs.tag }} [skip ci]"
           git push -f https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git built
+
+      - name: Setup SSH key for Pantheon
+        uses: webfactory/ssh-agent@v0.8.0
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PANTHEON_SSH_KEY }}
+        with:
+          ssh-private-key: ${SSH_PRIVATE_KEY}
+
+      - name: Configure Git for Pantheon
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          mkdir -p ~/.ssh
+          cp .github/pantheon_known_hosts ~/.ssh/known_hosts
+
+      - name: Push to Pantheon
+        env:
+          PANTHEON_SITE_ID: ${{ secrets.PANTHEON_SITE_ID }}
+          PANTHEON_SSH_KEY: ${{ secrets.PANTHEON_SSH_KEY }}
+        run: |
+          git remote add pantheon ssh://codeserver.dev.${PANTHEON_SITE_ID}@codeserver.dev.${PANTHEON_SITE_ID}.drush.in:2222/~/repository.git
+          git push -f pantheon built:master
