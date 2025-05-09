@@ -1,0 +1,10 @@
+api_version: 1
+
+php_version: 8.2
+
+web_docroot: true
+
+protected_web_paths:
+  - /vendor
+  - /storage
+  - /bootstrap/cache
