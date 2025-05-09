@@ -55,18 +55,18 @@ jobs:
           git push -f https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git built
 
       - name: Setup SSH key for Pantheon
-        uses: webfactory/ssh-agent@v0.8.0
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.PANTHEON_SSH_KEY }}
-        with:
-          ssh-private-key: ${SSH_PRIVATE_KEY}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PANTHEON_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          cp .github/pantheon_known_hosts ~/.ssh/known_hosts
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_rsa
 
       - name: Configure Git for Pantheon
         run: |
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
-          mkdir -p ~/.ssh
-          cp .github/pantheon_known_hosts ~/.ssh/known_hosts
 
       - name: Push to Pantheon
         env:
