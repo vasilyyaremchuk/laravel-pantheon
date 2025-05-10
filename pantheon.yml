@@ -8,8 +8,3 @@ protected_web_paths:
   - /vendor
   - /storage
   - /bootstrap/cache
-
-deploy_hooks:
-  after:
-    - type: webphp
-      script: private/scripts/deploy.php
