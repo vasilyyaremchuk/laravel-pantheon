@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Set up Laravel storage directories
+STORAGE_DIR="/files/storage"
+CACHE_DIR="/files/bootstrap/cache"
+
+# Create storage directory structure if it doesn't exist
+mkdir -p "$STORAGE_DIR/logs"
+mkdir -p "$STORAGE_DIR/framework/views"
+mkdir -p "$STORAGE_DIR/framework/cache"
+mkdir -p "$STORAGE_DIR/framework/sessions"
+mkdir -p "$CACHE_DIR"
+
+# Create symlinks if they don't exist
+# Check if storage is not already a symlink
+if [ ! -L "storage" ] && [ -d "storage" ]; then
+    # Backup existing storage contents if any
+    cp -rf storage/* "$STORAGE_DIR/" 2>/dev/null
+    rm -rf storage
+    ln -s "$STORAGE_DIR" storage
+fi
+
+# Check if bootstrap/cache is not already a symlink
+if [ ! -L "bootstrap/cache" ] && [ -d "bootstrap/cache" ]; then
+    # Backup existing cache if any
+    cp -rf bootstrap/cache/* "$CACHE_DIR/" 2>/dev/null
+    rm -rf bootstrap/cache
+    ln -s "$CACHE_DIR" bootstrap/cache
+fi
+
+# Set proper permissions
+chmod -R 755 "$STORAGE_DIR"
+chmod -R 755 "$CACHE_DIR"
