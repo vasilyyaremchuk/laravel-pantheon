@@ -19,9 +19,6 @@ class PantheonServiceProvider extends ServiceProvider
         // Override cache path if configured
         if ($cachePath = config('pantheon.cache_path')) {
             $this->app->useBootstrapPath(dirname($cachePath));
-            if (!file_exists($cachePath)) {
-                mkdir($cachePath, 0755, true);
-            }
         }
     }
 
