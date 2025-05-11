@@ -39,6 +39,7 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install Dependencies
+        working-directory: ./code
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
       - name: Prepare deploy scripts
@@ -54,9 +55,25 @@ jobs:
       - name: Create and Switch to built branch
         run: |
           git checkout -B built
-          git add vendor/ -f
-          git add composer.lock -f
-          git commit -m "Build: Update dependencies from tag ${{ github.event.inputs.tag }} [skip ci]"
+          # Create a temporary directory for the build
+          mkdir -p temp_build
+          # Copy code directory contents to temp build
+          cp -r code/* temp_build/
+          # Copy vendor directory if it exists
+          if [ -d "code/vendor" ]; then
+            cp -r code/vendor temp_build/
+          fi
+          # Copy composer.lock if it exists
+          if [ -f "code/composer.lock" ]; then
+            cp code/composer.lock temp_build/
+          fi
+          # Remove existing contents and copy temp build
+          git rm -rf .
+          mv temp_build/* .
+          rm -rf temp_build
+          # Add all files
+          git add .
+          git commit -m "Build: Update from tag ${{ github.event.inputs.tag }} [skip ci]"
           git push -f https://${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git built
 
       - name: Setup SSH key for Pantheon
