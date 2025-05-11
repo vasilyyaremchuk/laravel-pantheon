@@ -42,11 +42,6 @@ jobs:
         working-directory: ./code
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
-      - name: Prepare deploy scripts
-        run: |
-          mkdir -p private/scripts
-          cp scripts/deploy.php private/scripts/
-
       - name: Configure Git
         run: |
           git config --global user.name 'GitHub Action'
