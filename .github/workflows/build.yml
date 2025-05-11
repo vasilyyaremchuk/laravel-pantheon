@@ -40,6 +40,17 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./code
+        run: composer install --no-dev --no-scripts --no-interaction
+
+      - name: Setup Storage Symlinks
+        run: |
+          rm -rf code/storage
+          ln -s ../files code/storage
+          rm -rf code/bootstrap/cache
+          ln -s ../../files code/bootstrap/cache
+
+      - name: Finish Composer Setup
+        working-directory: ./code
         run: composer install --no-dev --optimize-autoloader --no-interaction
 
       - name: Configure Git
